@@ -31,7 +31,7 @@ sudo systemctl start httpd
 sudo systemctl enable httpd
 
 # Obtém o hostname corretamente
-hostname=$(hostname)
+hostname=$(cat /etc/hostname)
 
 # Define o caminho do diretório web
 dir="/var/www/html/${hostname}.com"
