@@ -1,92 +1,114 @@
 #!/bin/bash
 
-# Obtém o nome do hostname do sistema
-hostname=$(hostname)
+# Função para verificar e instalar pacotes
+install_package() {
+    local package=$1
+    
+    # Verifica se o pacote está instalado
+    if rpm -q $package &>/dev/null; then
+        echo "$package já está instalado. Removendo..."
+        sudo yum remove -y $package
+    fi
 
-# Define o caminho do diretório do site
-site_dir="/var/www/html/${hostname}.com"
+    # Instala o pacote mais atualizado
+    echo "Instalando o pacote $package..."
+    sudo yum install -y $package
+}
 
-
-# Verifica se o httpd está instalado 
-if rpm -q httpd &>/dev/null; then
-   echo "O apache HTTPD já está instalado, realizando remoção..."
-   sudo yum remove -y httpd
-
-else
-  echo "O apache não está instalado, instalando versão mais recente"
-
-fi
-
-# atualiza repositorio de pacotes
+# Atualiza os repositórios do YUM
+echo "Atualizando pacotes..."
 sudo yum update -y
 
+# Instala o Apache (httpd)
+install_package httpd
 
-# instala a versão mais recente do httpd
-sudo yum install -y httpd
+# Instala o PHP
+install_package php
 
+# Inicia e habilita o Apache
+echo "Iniciando e habilitando o serviço httpd..."
+sudo systemctl start httpd
+sudo systemctl enable httpd
 
-# Verifica se a instalação foi bem-sucedida
+# Obtém o hostname corretamente
+hostname=$(hostname)
 
-if rpm -q httpd &>/dev/null; then
-   echo "Apache HTTPD instalado com sucesso!"
+# Define o caminho do diretório web
+dir="/var/www/html/${hostname}.com"
 
+# Criando o diretório do site
+echo "Criando diretório: $dir"
+sudo mkdir -p "$dir"
 
-  # Inicia serviço e habilita no boot
-  sudo systemctl start httpd
-  sudo systemctl enable httpd
-  echo " Serviço HTTPD foi iniciado e configurado para iniciar automaticamente no boot"
+# Definição de permissões para o Apache (httpd)
+echo "Ajustando permissões..."
+sudo chown -R apache:apache "$dir"
+sudo chmod -R 755 "$dir"
 
-else 
- echo "Houve erro ao instalar o apache HTTPD"
- exit 1
-
-
- fi
-
-
-# Verifica se o PHP está instalado
-if rpm -q php &>/dev/null; then
-    echo "O PHP já está instalado. Removendo a versão antiga..."
-    sudo yum remove -y php php-cli php-common php-mysql php-pdo php-gd php-xml php-mbstring
+# Verifica se o diretório /etc/content existe e tem arquivos antes de copiar
+if [ -d "/etc/content" ] && [ "$(ls -A /etc/content 2>/dev/null)" ]; then
+    echo "Copiando arquivos de /etc/content para $dir..."
+    sudo cp -r /etc/content/* "$dir/"
+    sudo chown -R apache:apache "$dir"
+    echo "Arquivos copiados com sucesso!"
 else
-    echo "O PHP não está instalado. Instalando a versão mais recente..."
-
+    echo "O diretório /etc/content não existe ou está vazio. Nenhum arquivo será copiado."
 fi
 
+# Criando o arquivo do Virtual Host no Apache
+vhost_config="/etc/httpd/conf.d/${hostname}.com.conf"
 
-# Instalar o repositório EPEL e Remi (necessário para PHP mais atualizado no CentOS 7)
-sudo yum install -y epel-release yum-utils
-sudo yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-sudo yum-config-manager --enable remi-php74  # Habilita o repositório do PHP 7.4
+echo "Criando configuração do Virtual Host: $vhost_config"
 
+sudo bash -c "cat > $vhost_config" <<EOF
+<VirtualHost *:80>
+    ServerName www.${hostname}.com
+    DocumentRoot $dir
 
-# Instala o PHP mais recente disponível para o CentOS 7 (alterável para outras versões)
-sudo yum install -y php php-cli php-common php-mysql php-pdo php-gd php-xml php-mbstring
+    <Directory $dir>
+        AllowOverride All
+        Require all granted
+    </Directory>
 
-# Verifica se a instalação do PHP foi bem-sucedida
-if rpm -q php &>/dev/null; then
-    echo "PHP instalado com sucesso!"
-else
-    echo "Houve um erro na instalação do PHP."
-    exit 1
-fi
+    ErrorLog /var/log/httpd/${hostname}_error.log
+    CustomLog /var/log/httpd/${hostname}_access.log combined
+</VirtualHost>
+EOF
 
-# Criação do diretório baseado no hostname
-if [ ! -d "$site_dir" ]; then
-    echo "Criando diretório para o site em: $site_dir"
-    sudo mkdir -p "$site_dir"
-else
-    echo "Diretório $site_dir já existe."
-fi
+# Ajustar permissões do arquivo de configuração do Apache
+sudo chmod 644 $vhost_config
 
-
-
-
-
-
-# Reinicia o serviço Apache para aplicar as mudanças
+# Reiniciando o Apache para aplicar as mudanças
+echo "Reiniciando o serviço httpd..."
 sudo systemctl restart httpd
-echo "O Apache HTTPD foi reiniciado para carregar o PHP corretamente."
 
-echo "Instalação concluída! Apache e PHP estão rodando na máquina."
-echo "Diretório do site criado em: $site_dir"
+# Configurando o Firewall (firewalld)
+echo "Parando o firewalld temporariamente..."
+sudo systemctl stop firewalld
+
+echo "Liberando a porta TCP/80 no firewalld..."
+sudo firewall-cmd --permanent --add-service=http
+
+echo "Recarregando as regras do firewalld..."
+sudo firewall-cmd --reload
+
+echo "Reiniciando o firewalld..."
+sudo systemctl start firewalld
+
+echo "Configuração concluída!"
+echo "Virtual Host criado: $vhost_config"
+echo "Verifique o status do Apache com: sudo systemctl status httpd"
+echo "Verifique o status do firewalld com: sudo firewall-cmd --list-all"
+# Reiniciando o Apache novamente para garantir que todas as configurações sejam aplicadas
+
+echo "Parando o Apache (httpd)..."
+sudo systemctl stop httpd
+
+echo "Iniciando o Apache (httpd) novamente..."
+sudo systemctl start httpd
+
+echo "Habilitando o Apache para iniciar no boot..."
+sudo systemctl enable httpd
+
+echo "Apache reiniciado com sucesso!"
+echo "Verifique o status do Apache com: sudo systemctl status httpd"
