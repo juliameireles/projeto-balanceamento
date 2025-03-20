@@ -34,7 +34,7 @@ sudo systemctl enable httpd
 hostname=$(cat /etc/hostname)
 
 # Define o caminho do diretório web
-dir="/var/www/html/${hostname}.com"
+dir="/var/www/html/www.${hostname}.com"
 
 # Criando o diretório do site
 echo "Criando diretório: $dir"
@@ -82,15 +82,15 @@ sudo chmod 644 $vhost_config
 echo "Reiniciando o serviço httpd..."
 sudo systemctl restart httpd
 
-# Configurando o Firewall (firewalld)
-echo "Parando o firewalld temporariamente..."
-sudo systemctl stop firewalld
-
 echo "Liberando a porta TCP/80 no firewalld..."
 sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-port=80/tcp
 
 echo "Recarregando as regras do firewalld..."
 sudo firewall-cmd --reload
+
+echo "Verificando as regras aplicadas no firewall..."
+sudo firewall-cmd --list-all
 
 echo "Reiniciando o firewalld..."
 sudo systemctl start firewalld

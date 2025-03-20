@@ -1,7 +1,3 @@
-/* o que a landing page deve fazer? 
-um código php que colete o ip da máquina e o revele
-*/
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -35,7 +31,7 @@ um código php que colete o ip da máquina e o revele
         <h1>Bem-vindo à minha Landing Page</h1>
         <p>O seu IP é: 
             <strong>
-                <?php echo $_SERVER['REMOTE_ADDR']; ?>
+                <?php echo gethostbyname(gethostname()); ?>
             </strong>
         </p>
     </div>
