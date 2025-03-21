@@ -8,14 +8,13 @@
 
     /* Fundo animado que muda de cor*/
 
-    @keyframes bgAnimation {
-            0% { background-color: #ff4d4d; }
-            25% { background-color: #ffcc00; }
-            50% { background-color: #4dd2ff; }
-            75% { background-color: #8cff66; }
-            100% { background-color: #ff4d4d; }
-        }
-
+        @keyframes bgAnimation {
+                0% { background: linear-gradient(45deg, #ff4d4d, #ffcc00); }
+                25% { background: linear-gradient(45deg, #ffcc00, #4dd2ff); }
+                50% { background: linear-gradient(45deg, #4dd2ff, #8cff66); }
+                75% { background: linear-gradient(45deg, #8cff66, #ff4d4d); }
+                100% { background: linear-gradient(45deg, #ff4d4d, #ffcc00); }
+            }
 
 
 
