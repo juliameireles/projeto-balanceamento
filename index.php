@@ -1,3 +1,7 @@
+<?php
+// Definir o tipo de conteúdo corretamente para evitar problemas com CSS e HTML
+header("Content-type: text/html; charset=UTF-8");
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -41,7 +45,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Bem-vindo à minha Landing Page</h1>
+        <h1>Bem-vindo! Este é um teste de balanceamento de carga </h1>
         <p>O seu IP é: 
             <strong>
                 <?php echo gethostbyname(gethostname()); ?>
