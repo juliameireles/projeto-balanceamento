@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Landing Page</title>
     <style>
+
+    /* Fundo animado que muda de cor*/
+
+    @keyframes bgAnimation {
+            0% { background-color: #ff4d4d; }
+            25% { background-color: #ffcc00; }
+            50% { background-color: #4dd2ff; }
+            75% { background-color: #8cff66; }
+            100% { background-color: #ff4d4d; }
+        }
+
+
+
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
