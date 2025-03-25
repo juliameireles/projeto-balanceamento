@@ -30,7 +30,7 @@ echo "Iniciando e habilitando o serviço httpd..."
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-# Obtém o hostname corretamente
+# Obtém o hostname 
 hostname=$(cat /etc/hostname)
 
 # Define o caminho do diretório web
@@ -40,7 +40,7 @@ dir="/var/www/html/www.${hostname}.com"
 echo "Criando diretório: $dir"
 sudo mkdir -p "$dir"
 
-# Definição de permissões para o Apache (httpd)
+# Definição de permissões para o Apache
 echo "Ajustando permissões..."
 sudo chown -R apache:apache "$dir"
 sudo chmod -R 755 "$dir"
@@ -99,7 +99,7 @@ echo "Configuração concluída!"
 echo "Virtual Host criado: $vhost_config"
 echo "Verifique o status do Apache com: sudo systemctl status httpd"
 echo "Verifique o status do firewalld com: sudo firewall-cmd --list-all"
-# Reiniciando o Apache novamente para garantir que todas as configurações sejam aplicadas
+
 
 echo "Parando o Apache (httpd)..."
 sudo systemctl stop httpd

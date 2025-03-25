@@ -1,5 +1,5 @@
 <?php
-// Definir o tipo de conteúdo corretamente para evitar problemas com CSS e HTML
+
 header("Content-type: text/html; charset=UTF-8");
 ?>
 <!DOCTYPE html>
