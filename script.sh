@@ -37,7 +37,7 @@ dir="/var/www/html/www.${hostname}.com"
 
 echo "Criando diretório: $dir"
 sudo mkdir -p "$dir"
- de
+ 
 
 echo "Ajustando permissões..."
 sudo chown -R apache:apache "$dir"
