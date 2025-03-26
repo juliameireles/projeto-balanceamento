@@ -3,8 +3,7 @@
 # Função para verificar e instalar pacotes
 install_package() {
     local package=$1
-    
-    # Verifica se o pacote está instalado
+ 
     if rpm -q $package &>/dev/null; then
         echo "$package já está instalado. Removendo..."
         sudo yum remove -y $package
@@ -19,13 +18,13 @@ install_package() {
 echo "Atualizando pacotes..."
 sudo yum update -y
 
-# Instala o Apache (httpd)
+
 install_package httpd
 
-# Instala o PHP
+
 install_package php
 
-# Inicia e habilita o Apache
+
 echo "Iniciando e habilitando o serviço httpd..."
 sudo systemctl start httpd
 sudo systemctl enable httpd
@@ -36,11 +35,10 @@ hostname=$(cat /etc/hostname)
 # Define o caminho do diretório web
 dir="/var/www/html/www.${hostname}.com"
 
-# Criando o diretório do site
 echo "Criando diretório: $dir"
 sudo mkdir -p "$dir"
+ de
 
-# Definição de permissões para o Apache
 echo "Ajustando permissões..."
 sudo chown -R apache:apache "$dir"
 sudo chmod -R 755 "$dir"
@@ -75,10 +73,10 @@ sudo bash -c "cat > $vhost_config" <<EOF
 </VirtualHost>
 EOF
 
-# Ajustar permissões do arquivo de configuração do Apache
+
 sudo chmod 644 $vhost_config
 
-# Reiniciando o Apache para aplicar as mudanças
+
 echo "Reiniciando o serviço httpd..."
 sudo systemctl restart httpd
 

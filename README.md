@@ -69,4 +69,3 @@ http://www.juliabalancer.com
 Você verá o conteúdo da aplicação servida pelas VMs por meio do balanceador de carga.
 
 ---
-
